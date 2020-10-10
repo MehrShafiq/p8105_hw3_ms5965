@@ -1,1 +1,1 @@
-# p8105_hw3_ms5965
+# This is homework 3 for the course p8105.

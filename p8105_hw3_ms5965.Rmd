@@ -127,9 +127,10 @@ mutate(
                "Saturday" = "weekend",
                "Sunday" = "weekend"),
  
-   day = as.factor(day),
-  activity_count = as.numeric(activity_count)
-  )
+   day = factor(day, levels = c(
+     "Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")),
+  activity_count = as.numeric(activity_count),
+  minutes = as.numeric(minutes))
 ```
 
 This dataset has `r nrow(tidy_accel_data)` rows and `r ncol(tidy_accel_data)` columns. 
@@ -152,3 +153,22 @@ tidy_accel_data %>%
 ```
 
 The least amount of activity was in week four. The patient consistently does a higher amount of activity on Fridays and on the last two Saturdays, he had the least amount of activity. 
+
+### Part C
+
+```{r}
+tidy_accel_data %>%
+  ggplot(aes(x = minutes, y = activity_count)) +
+  geom_line(aes(color = day), alpha = 0.5)+
+  geom_smooth(aes(color = day), alpha = .5) + 
+  scale_x_continuous(
+    breaks = c(0, 240, 480, 720, 960, 1200, 1440)) +
+labs(
+  title = "",
+  x = "Minutes",
+  y = "Activity Count"
+) + 
+  theme(legend.position = "bottom") 
+```
+
+There is low activity on either extremes of the day - early morning or late at night. Majority of the activity is between 1000 and 1300 minutes. 

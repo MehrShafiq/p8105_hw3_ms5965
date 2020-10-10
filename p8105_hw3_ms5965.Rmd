@@ -111,11 +111,11 @@ tidy_accel_data = accel_data %>%
   
 pivot_longer(
   activity_1:activity_1440,
-  names_to = "activity_count",
+  names_to = "minutes",
   names_prefix = "activity_",
-  values_to = "minute") %>% 
+  values_to = "activity_count") %>% 
   
-  drop_na(minute) %>% 
+  drop_na(activity_count) %>% 
   
 mutate(
   dow = recode(day,
@@ -140,6 +140,15 @@ The dataset contains the following information, collected from an _accelerometer
 
 *   The observations under the activity_count variable are the number of activities per minute. 
 
-*   The minute variable represents each minute of a 24-hour day starting at midnight. 
+*   The minutes variable represents each minute of a 24-hour day starting at midnight. 
 
+### Part B
 
+```{r}
+tidy_accel_data %>% 
+  group_by(week, day) %>% 
+  mutate(total_per_day = sum(activity_count)) %>% 
+  knitr::kable(digits = 0)  
+```
+
+The least amount of activity was in week four. The patient consistently does a higher amount of activity on Fridays and on the last two Saturdays, he had the least amount of activity. 

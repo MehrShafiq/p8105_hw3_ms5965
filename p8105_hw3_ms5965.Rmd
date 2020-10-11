@@ -193,7 +193,7 @@ This dataset has information on the weather station, data of observation, precip
 
 
 ```{r}
-tidy_ny_noaa = slice_tail(ny_noaa, n = 4000) %>% 
+tidy_ny_noaa = slice_tail(ny_noaa, n = 60000) %>% 
 janitor::clean_names() %>% 
   
 separate(date, into = c("year", "month", "day")) %>% 
@@ -227,7 +227,23 @@ The most common observed values for snowfall are 0mm, 25mm and those for which t
 
 ```{r}
 tidy_ny_noaa %>% 
-  filter(month %in% c("January", "June")) %>% 
+  filter(month %in% c("1", "7")) %>% 
+  group_by(id, month, year) %>% 
   
+  mutate(mean_tmax = mean(tmax), na.rm = TRUE) %>% 
+  
+  ggplot(aes(x = year, y = mean_tmax, color = id)) +
+  geom_point() +
+  geom_smooth() +
+  facet_grid(~ month) +
+  
+labs(
+  title = "Average maximum temperature in January and in July in each station across years.", 
+  x = "Year", 
+  y = "Average Maximum Temperature / C") +
+  
+theme(axis.text.x = element_text(angle = -90, vjust = 0.5, hjust = 1))
+
 ```
 
+There is a marked increase in the avergae maximum temperature in July than in January, across all years from 1980 to 2010. There are some outliers, namely January 2004, when there was a drop in the temperature to below normal. 

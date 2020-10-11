@@ -8,6 +8,9 @@ output: github_document
 ```{r setup}
 library(tidyverse)
 library(p8105.datasets)
+library(dplyr)
+library(patchwork)
+library(ggplot2)
 
 knitr::opts_chunk$set(
 	fig.width = 6, 
@@ -158,17 +161,73 @@ The least amount of activity was in week four. The patient consistently does a h
 
 ```{r}
 tidy_accel_data %>%
-  ggplot(aes(x = minutes, y = activity_count)) +
-  geom_line(aes(color = day), alpha = 0.5)+
-  geom_smooth(aes(color = day), alpha = .5) + 
+  group_by(day, minutes) %>% 
+  
+  ggplot(aes(x = minutes, y = activity_count, color = day)) +
+  geom_line(alpha = .5)+
+  geom_smooth(alpha = .5) + 
+  
   scale_x_continuous(
     breaks = c(0, 240, 480, 720, 960, 1200, 1440)) +
-labs(
-  title = "",
-  x = "Minutes",
-  y = "Activity Count"
-) + 
+  
+  labs(
+    title = "24-hour activity time courses for each day",
+    x = "Minutes",
+    y = "Activity Count") + 
+  
   theme(legend.position = "bottom") 
 ```
 
-There is low activity on either extremes of the day - early morning or late at night. Majority of the activity is between 1000 and 1300 minutes. 
+There is low activity on either extremes of the day - early morning or late at night. Majority of the activity is between 1000 and 1300 minutes, and between 480 and 720 minutes. 
+
+
+## Problem 3
+
+```{r}
+data("ny_noaa")
+```
+
+These data were accessed from the NOAA National Climatic Data Center, and has `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns. 
+
+This dataset has information on the weather station, data of observation, precipitation, snowfall, snow depth, and maximum and minimum temperatures. Greater volume of missing data will impact the accuracy of the final results, as it cam lead to bias - such as overestimation or underestimation. 
+
+
+```{r}
+tidy_ny_noaa = slice_tail(ny_noaa, n = 4000) %>% 
+janitor::clean_names() %>% 
+  
+separate(date, into = c("year", "month", "day")) %>% 
+  
+  mutate(
+    prcp = prcp * 0.1,
+    tmax = as.numeric(tmax) * 0.1,
+    tmin = as.numeric(tmin) * 0.1,
+    snwd = as.numeric(snwd),
+    year = as.numeric(year),
+    month = as.numeric(month),
+    day = as.numeric(day)
+  )
+```
+
+### Part A
+
+```{r}
+snowfall_freq = tidy_ny_noaa %>% 
+  count(snow, name = "n_snow") %>% 
+  arrange(desc(n_snow)) %>% 
+  select(n_snow, snow, everything()) %>% 
+  slice_max(n_snow, n = 3) %>% 
+knitr::kable(digits = 1)
+```
+
+The most common observed values for snowfall are 0mm, 25mm and those for which there are missing data for snowfall. 
+
+
+### Part B
+
+```{r}
+tidy_ny_noaa %>% 
+  filter(month %in% c("January", "June")) %>% 
+  
+```
+
